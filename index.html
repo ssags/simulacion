@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Refrigeración líquida: continuidad y Bernoulli</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#101A22;--panel:#16232C;--ink:#EDF3F5;--mute:#A9BBC5;--line:#2C4150;--acc:#20C9D2;--hot:#F29A55;--soft:#1E303B;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Instrument Sans",system-ui,-apple-system,"Segoe UI",sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{padding:20px 20px 8px;max-width:1280px;margin:0 auto}
+h1{margin:0;font-size:clamp(1.4rem,3.2vw,2.1rem);line-height:1.15;letter-spacing:-.01em}
+header p{margin:6px 0 0;color:var(--mute);max-width:70ch}
+main{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:16px;padding:12px 20px 28px;max-width:1280px;margin:0 auto}
+@media(max-width:860px){main{grid-template-columns:1fr}}
+#scene{position:relative;min-height:380px;height:64vh;max-height:680px;background:radial-gradient(ellipse at 50% 35%,#1b3640 0%,#0d1a20 55%,#070e12 100%);border-radius:10px;overflow:hidden;touch-action:none;cursor:grab;outline-offset:3px}
+#scene:active{cursor:grabbing}
+#scene canvas{display:block;width:100%;height:100%}
+.lab{position:absolute;left:0;top:0;font-size:12px;font-weight:600;color:#dff3f7;background:rgba(13,26,32,.78);border:1px solid #2c4650;padding:2px 7px;border-radius:4px;pointer-events:none;white-space:nowrap}
+.lab.two{white-space:pre;line-height:1.3}
+.legend{position:absolute;right:10px;bottom:8px;font-size:12px;line-height:1.45;color:#dff3f7;background:rgba(13,26,32,.8);border:1px solid #2c4650;padding:7px 10px;border-radius:6px;pointer-events:none}
+.legend .bar{height:7px;border-radius:4px;margin:4px 0 2px;background:linear-gradient(90deg,#46d3e6,#f0894d)}
+.legend .lr{display:flex;justify-content:space-between;color:#8fa8b3;margin-bottom:4px}
+.hint{position:absolute;left:10px;bottom:8px;font-size:12px;color:#8fa8b3;pointer-events:none}
+aside{display:flex;flex-direction:column;gap:14px}
+.box{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px}
+.box h2{margin:0 0 8px;font-size:1rem}
+.ctl{display:grid;grid-template-columns:1fr auto;gap:2px 10px;margin-bottom:10px}
+.ctl label{font-weight:600;font-size:.92rem}
+.ctl output{font-variant-numeric:tabular-nums;color:var(--acc);font-weight:600}
+.ctl input{grid-column:1/-1;width:100%;accent-color:var(--acc)}
+.row{display:flex;gap:8px;flex-wrap:wrap}
+button{font:inherit;font-weight:600;font-size:.9rem;padding:7px 12px;border-radius:8px;border:1px solid var(--line);background:var(--soft);color:var(--ink);cursor:pointer}
+button[aria-pressed="true"]{background:var(--acc);color:#04181d;border-color:var(--acc)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+dl{margin:0;display:grid;grid-template-columns:1fr auto;gap:5px 12px;font-size:.92rem}
+dt{color:var(--mute)}dd{margin:0;text-align:right;font-variant-numeric:tabular-nums;font-weight:600}
+.eq{font-family:"Cambria Math","STIX Two Math",Georgia,serif;font-size:1.02rem;background:var(--soft);border-radius:6px;padding:7px 10px;margin:6px 0;overflow-x:auto;white-space:nowrap}
+.note{font-size:.86rem;color:var(--mute);margin:6px 0 0}
+.hot{color:var(--hot)}
+footer{max-width:1280px;margin:0 auto;padding:0 20px 28px;color:var(--mute);font-size:.84rem}
+.wide{max-width:1280px;margin:0 auto;padding:0 20px 20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.calc{margin:0;padding-left:1.1em;font-size:.92rem;font-variant-numeric:tabular-nums}.calc li{margin:4px 0}
+details{border-top:1px solid var(--line);padding:8px 0}details:first-of-type{border-top:0}
+summary{cursor:pointer;font-weight:600;font-size:.94rem}summary:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+details p{margin:6px 0 2px;font-size:.9rem;color:var(--mute)}
+.box ul.hyp{margin:0;padding-left:1.1em;font-size:.9rem}.box ul.hyp li{margin:4px 0}
+
+#scene{background:radial-gradient(ellipse at 50% 38%,#1a2a34 0%,#101A22 58%,#0a1117 100%);border:1px solid var(--line)}
+.lab{font-size:12px;font-weight:600;color:var(--ink);background:rgba(24,37,45,.94);border:1px solid #3f5766;padding:3px 8px;border-radius:5px;box-shadow:0 2px 8px rgba(0,0,0,.45);letter-spacing:.01em}
+.lab.t{font-weight:500;font-size:11px;color:#c3d3db;background:none;border:0;box-shadow:none;padding:0 2px;text-shadow:0 0 3px #0a1117,0 0 6px #0a1117,0 1px 2px #0a1117;opacity:.8}
+.lab:not(.t){padding:2px 6px;font-size:11.5px;background:rgba(24,37,45,.82)}
+.lab.pp{background:rgba(24,37,45,.82)}
+.legend{pointer-events:auto;padding:0;cursor:default}.legend summary{list-style:none;cursor:pointer;padding:5px 10px;font-weight:700;font-size:12px}.legend summary::-webkit-details-marker{display:none}.legend[open] summary{border-bottom:1px solid #3f5766}.legend .lb{padding:6px 10px 8px}
+.legend summary::after{content:' +';color:var(--mute)}.legend[open] summary::after{content:' −'}
+.lab.c1{border-color:var(--acc)}.lab.c2{border-color:var(--hot)}.lab.c3{border-color:#3f8d96}
+.lab .a{font-weight:700;color:var(--acc)}.lab.c2 .a{color:var(--hot)}
+.lab.pp{font-size:13px;font-weight:700;padding:3px 8px}.lab.pp.c1{color:var(--acc)}.lab.pp.c2{color:var(--hot)}
+.legend{background:rgba(24,37,45,.94);border:1px solid #3f5766;color:var(--ink)}
+.legend .bar{background:linear-gradient(90deg,#20C9D2,#F29A55)}.legend .lr{color:var(--mute)}
+.hint{color:var(--mute);opacity:.85}
+header p{color:var(--mute)}
+.box{background:var(--panel);border:1px solid var(--line);box-shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 18px rgba(0,0,0,.25)}
+.box h2{display:flex;align-items:center;gap:8px;font-size:.98rem;letter-spacing:.01em}
+.box h2::before{content:"";width:3px;height:15px;border-radius:2px;background:var(--acc)}
+aside .box:nth-child(3) h2::before{background:var(--hot)}
+.eq{background:#0f1a21;border:1px solid var(--line);border-left:3px solid var(--acc);color:var(--ink)}
+aside .box:nth-child(3) .eq{border-left-color:var(--hot)}
+dt{color:var(--mute)}dd{color:var(--ink)}
+#v1,#re{color:var(--acc)}#v2,#dp,#hc{color:var(--hot)}
+.ctl label{color:var(--ink)}.ctl output{color:var(--acc)}
+.ctl input[type=range]{-webkit-appearance:none;appearance:none;height:6px;border-radius:3px;background:#2a3f4d}
+.ctl input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--acc);border:2px solid #101A22;box-shadow:0 0 0 1px var(--acc)}
+.ctl input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--acc);border:2px solid #101A22}
+.ctl input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:#2a3f4d}
+button{background:var(--soft);border:1px solid #36505f;color:var(--ink)}
+button:hover{border-color:var(--acc)}
+button[aria-pressed="true"]{background:var(--acc);color:#06181c;border-color:var(--acc);box-shadow:0 0 0 1px rgba(32,201,210,.35)}
+details{border-top-color:var(--line)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Refrigeración líquida de una PC: continuidad y Bernoulli</h1>
+  <p>Circuito cerrado dentro de un gabinete con placa madre, RAM, placa de video, bomba, placa fría sobre la CPU, radiador con ventiladores y reservorio. Cambiá los controles y mirá cómo varían la velocidad y la presión.</p>
+</header>
+<main>
+  <div id="scene" tabindex="0" aria-label="Simulación 3D del circuito. Arrastrá para rotar, rueda para acercar, flechas para girar.">
+    <div class="hint">Arrastrá para rotar · rueda para acercar</div>
+    <details class="legend"><summary>Cómo leerlo</summary><div class="lb"><div class="bar"></div><div class="lr"><span>lento</span><span>rápido</span></div>Color y flechas = velocidad<br>Mayor A → menor v → mayor P (P₁)<br>Menor A → mayor v → menor P (P₂)<br>Manómetros: 1 división = 1 cm de agua</div></details>
+  </div>
+  <aside>
+    <div class="box">
+      <h2>Controles</h2>
+      <div class="ctl"><label for="q">Caudal de la bomba</label><output id="qo"></output><input id="q" type="range" min="0.5" max="3" step="0.1" value="2"></div>
+      <div class="ctl"><label for="d">Diámetro interior del tubo</label><output id="do"></output><input id="d" type="range" min="6" max="16" step="1" value="10"></div>
+      <div class="ctl"><label for="s">Sección de la placa fría (% del tubo)</label><output id="so"></output><input id="s" type="range" min="20" max="100" step="5" value="30"></div>
+      <div class="row">
+        <button id="mi" aria-pressed="true">Fluido ideal</button>
+        <button id="mr" aria-pressed="false">Con pérdidas reales</button>
+        <button id="mp" aria-pressed="false">Pausar</button>
+        <button id="vc" aria-pressed="false">Resaltar circuito</button>
+        <button id="nm" aria-pressed="true">Nombres de piezas</button>
+        <button id="ar" aria-pressed="true">Giro automático</button>
+        <button id="vf">Vista frontal</button>
+        <button id="vs">Vista superior</button>
+      </div>
+    </div>
+    <div class="box">
+      <h2>Continuidad</h2>
+      <div class="eq">A₁v₁ = A₂v₂ = Q</div>
+      <dl>
+        <dt>Velocidad en el tubo, v₁</dt><dd id="v1"></dd>
+        <dt>Velocidad en la placa fría, v₂</dt><dd id="v2"></dd>
+        <dt>Velocidad en el radiador</dt><dd id="v3"></dd>
+        <dt>Número de Reynolds en el tubo</dt><dd id="re"></dd>
+      </dl>
+      <p class="note">Menor sección ⇒ mayor velocidad. La placa fría reparte el caudal en 4 microcanales; la suma de sus áreas es A₂ (A₂ &lt; A₁). Las flechas son más cortas y gruesas donde v es chica, y más largas y finas donde v es grande.</p>
+    </div>
+    <div class="box">
+      <h2>Bernoulli (tubo → placa, misma altura)</h2>
+      <div class="eq">P₁ + ½ρv₁² = P₂ + ½ρv₂²</div>
+      <dl>
+        <dt>Caída de presión P₁ − P₂</dt><dd id="dp"></dd>
+        <dt>Descenso equivalente (P₁ − P₂)/ρg</dt><dd id="hc"></dd>
+      </dl>
+      <p class="note">Las dos columnas son manómetros graduados (1 división = 1 cm de agua). La línea punteada marca el nivel de P₁ y la columna de la placa baja Δh cuando la velocidad sube. Con «Vista frontal» se lee Δh sin distorsión de perspectiva.</p>
+    </div>
+    <div class="box">
+      <h2>Qué agrega la realidad</h2>
+      <dl>
+        <dt>Pérdida de presión total del circuito</dt><dd id="pt"></dd>
+        <dt>Potencia hidráulica de la bomba, ΔP·Q</dt><dd id="pw"></dd>
+      </dl>
+      <p class="note" id="mn"></p>
+    </div>
+  </aside>
+</main>
+<section class="wide" aria-label="Material de coloquio">
+  <div class="box">
+    <h2>Resolución paso a paso (con tus valores)</h2>
+    <ol class="calc" id="calc"></ol>
+    <p class="note">Se actualiza con los controles. Es el desarrollo que conviene escribir en el pizarrón: datos, ecuación, reemplazo y resultado con unidades.</p>
+  </div>
+  <div class="box">
+    <h2>Hipótesis de Bernoulli</h2>
+    <ul class="hyp">
+      <li>Fluido incompresible (agua: ρ constante).</li>
+      <li>Flujo estacionario: velocidad y presión no cambian con el tiempo en cada punto.</li>
+      <li>Sin viscosidad ni turbulencia, a lo largo de una línea de corriente.</li>
+      <li>Sin trabajo externo entre los puntos: no se puede cruzar la bomba sin sumarle su aporte.</li>
+    </ul>
+    <p class="note">Entre el tubo y la placa fría (misma altura, sin bomba en el medio) se cumplen razonablemente, por eso es el tramo que usa la simulación.</p>
+  </div>
+</section>
+<footer>
+  Modelo didáctico con agua a 25 °C (ρ = 997 kg/m³, μ = 0,89 mPa·s). Las pérdidas usan Darcy-Weisbach (fricción de Blasius en régimen turbulento) para 1,2 m de tubo, y coeficientes K estimados de 1,5 para la placa y 5 para el radiador. El radiador se modela con una sección total 3 veces la del tubo (varios canales en paralelo), por eso v₃ = v₁/3. Los refrigerantes comerciales son agua con glicol y aditivos, de densidad parecida. Referencias: Sears-Zemansky, <i>Física universitaria</i> (mecánica de fluidos); Çengel y Cimbala, <i>Mecánica de fluidos</i>; White, <i>Fluid Mechanics</i>.
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+var $=function(i){return document.getElementById(i)};
+var RHO=997,MU=0.00089,G=9.81,VIS=1.2,LT=1.2;
+var wrap=$('scene');
+var renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.toneMapping=THREE.NoToneMapping;renderer.outputEncoding=THREE.LinearEncoding;
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+wrap.insertBefore(renderer.domElement,wrap.firstChild);
+var scene=new THREE.Scene();
+var pm=new THREE.PMREMGenerator(renderer),envS=new THREE.Scene();envS.background=new THREE.Color(0x0b1319);
+[[0,7,0,9,.3,9,0xcfe3ea,1.6],[-8,2,0,.3,5,9,0x20C9D2,0.9],[8,2,0,.3,5,9,0x8fa6b4,0.7],[0,2,8,9,5,.3,0xcfe3ea,0.5]].forEach(function(l){var c=new THREE.Color(l[6]).multiplyScalar(l[7]);var m=new THREE.Mesh(new THREE.BoxGeometry(l[3],l[4],l[5]),new THREE.MeshBasicMaterial({color:c}));m.position.set(l[0],l[1],l[2]);envS.add(m)});
+scene.environment=pm.fromScene(envS,0.03).texture;
+var cam=new THREE.PerspectiveCamera(45,1,0.1,100);
+var yaw=-0.55,pitch=0.75,dist=11.5;
+scene.add(new THREE.AmbientLight(0xdfeaf0,0.25));
+var dl=new THREE.DirectionalLight(0xdfeaf0,0.8);dl.position.set(4,8,5);dl.castShadow=true;dl.shadow.mapSize.set(2048,2048);var sc=dl.shadow.camera;sc.left=-8;sc.right=8;sc.top=8;sc.bottom=-8;sc.near=1;sc.far=25;dl.shadow.bias=-0.0006;scene.add(dl);
+var floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.ShadowMaterial({opacity:.6}));floor.rotation.x=-Math.PI/2;floor.position.y=-1.14;floor.receiveShadow=true;scene.add(floor);
+var grid=new THREE.GridHelper(30,30,0x24404e,0x1a2c37);grid.position.y=-1.135;grid.material.transparent=true;grid.material.opacity=.3;scene.add(grid);
+function mat(c,o,m,r,e){var x=new THREE.MeshStandardMaterial({color:c,transparent:o<1,opacity:o,roughness:r==null?.5:r,metalness:m||0,depthWrite:o>=1});if(e!=null){x.emissive=new THREE.Color(e);x.emissiveIntensity=1.2}return x}
+function box(w,h,d,c,o,x,y,z,m,r,e){var b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat(c,o,m,r,e));b.position.set(x,y,z);scene.add(b);return b}
+scene.add(new THREE.HemisphereLight(0x6f8fa3,0x0b1319,0.2));
+var pl1=new THREE.PointLight(0x20C9D2,0.3,14);pl1.position.set(-3,1.5,2.5);scene.add(pl1);
+var pl2=new THREE.PointLight(0x6f8fa3,0.18,14);pl2.position.set(3.5,1.2,-2);scene.add(pl2);
+var rgb=[],fans=[],pc0=scene.children.length;
+function glow(w,h,d,x,y,z){var b=box(w,h,d,0x000000,1,x,y,z,0,.5,0x20C9D2);b.material.emissiveIntensity=.5;return b}
+// gabinete y placa madre
+box(9.2,0.15,5.4,0x111b22,1,0,-1.05,0,.5,.5);
+var cf=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(9.2,4.2,5.4)),new THREE.LineBasicMaterial({color:0x526875}));cf.position.set(0,1.1,0);scene.add(cf);
+var cv=document.createElement('canvas');cv.width=cv.height=512;var cx=cv.getContext('2d');
+cx.fillStyle='#18252D';cx.fillRect(0,0,512,512);cx.strokeStyle='rgba(111,138,153,.4)';cx.fillStyle='rgba(111,138,153,.5)';cx.lineWidth=2;
+for(var q=0;q<90;q++){var px=Math.random()*512,py=Math.random()*512,hx=px+(Math.random()-.5)*160,hy=py+(Math.random()-.5)*160;cx.beginPath();cx.moveTo(px,py);cx.lineTo(hx,py);cx.lineTo(hx,hy);cx.stroke();cx.beginPath();cx.arc(hx,hy,3,0,6.3);cx.fill()}
+var board=new THREE.Mesh(new THREE.BoxGeometry(8.6,0.12,4.8),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(cv),roughness:.7,metalness:.15}));board.position.y=-0.9;scene.add(board);
+box(1.2,0.3,1.0,0x344956,1,0,-0.55,-1.5,.7,.4);
+var cold1=box(2.0,0.8,1.1,0xF29A55,0.13,0,0,-1.5,.8,.3);
+var cold2=box(2.04,0.04,1.14,0x526875,0.24,0,0.42,-1.5,.6,.3);
+var cu=document.createElement('canvas');cu.width=cu.height=256;var cux=cu.getContext('2d');cux.fillStyle='#a85f33';cux.fillRect(0,0,256,256);
+for(var q2=0;q2<800;q2++){var yy=Math.random()*256,xx=Math.random()*256,ll=30+Math.random()*130;cux.strokeStyle=Math.random()<.5?'rgba(255,200,150,.14)':'rgba(50,20,8,.16)';cux.beginPath();cux.moveTo(xx,yy);cux.lineTo(xx+ll,yy);cux.stroke()}
+var cuSlab=new THREE.Mesh(new THREE.BoxGeometry(2.0,0.22,1.1),new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(cu),color:0xffffff,metalness:.8,roughness:.4}));cuSlab.position.set(0,-0.29,-1.5);scene.add(cuSlab);
+[[-0.88,-0.43],[0.88,-0.43],[-0.88,0.43],[0.88,0.43]].forEach(function(p){var bo=new THREE.Mesh(new THREE.CylinderGeometry(0.05,0.05,0.05,10),mat(0x526875,1,.9,.3));bo.position.set(p[0],0.46,-1.5+p[1]);scene.add(bo)});
+box(0.5,0.36,0.55,0x344956,1,-1.65,-0.66,-2.0,.7,.4);box(0.5,0.36,0.55,0x344956,1,-2.3,-0.66,-2.0,.7,.4);
+box(0.6,0.25,0.6,0x344956,1,-3.3,-0.7,0.5,.7,.4);
+for(var k=0;k<4;k++){box(0.06,0.5,0.6,0x0c1419,1,1.5+0.14*k,-0.59,-2.0,.3,.5);glow(0.065,0.04,0.6,1.5+0.14*k,-0.32,-2.0)}
+// placa de video
+box(3.0,0.22,1.0,0x0c1318,1,0,-0.62,0.25,.2,.85);box(3.04,0.03,0.05,0x526875,1,0,-0.51,0.77,.9,.35);box(3.04,0.03,0.05,0x526875,1,0,-0.51,-0.27,.9,.35);glow(3.0,0.03,0.03,0,-0.49,0.72);
+// ventiladores
+function fan(r,n,x,y,z,rx,ry,w){var root=new THREE.Group(),spin=new THREE.Group();root.position.set(x,y,z);root.rotation.set(rx,ry,0);
+ var ring=new THREE.Mesh(new THREE.TorusGeometry(r,0.03,8,32),mat(0x526875,1,.85,.35));root.add(ring);
+ var hub=new THREE.Mesh(new THREE.CylinderGeometry(r*0.22,r*0.22,0.05,16),mat(0x2b3b46,1,.6,.4));hub.rotation.x=Math.PI/2;spin.add(hub);
+ for(var i=0;i<n;i++){var pv=new THREE.Group();pv.rotation.z=i*6.283/n;var b=new THREE.Mesh(new THREE.BoxGeometry(r*0.78,r*0.3,0.015),mat(0x23323c,1,.4,.5));b.position.x=r*0.6;b.rotation.x=0.45;pv.add(b);spin.add(pv)}
+ root.add(spin);scene.add(root);fans.push({spin:spin,w:w})}
+fan(0.4,9,-0.8,-0.49,0.25,-Math.PI/2,0,9);fan(0.4,9,0.8,-0.49,0.25,-Math.PI/2,0,-9);
+fan(0.44,9,3.38,0,-0.47,0,Math.PI/2,11);fan(0.44,9,3.38,0,0.47,0,Math.PI/2,11);
+var parts=scene.children.slice(pc0).filter(function(o){return o!==cold1&&o!==cold2&&o!==fans[2].spin.parent&&o!==fans[3].spin.parent});
+var ce=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.0,0.8,1.1)),new THREE.LineBasicMaterial({color:0xF29A55}));ce.position.set(0,0,-1.5);scene.add(ce);
+// radiador con aletas
+box(0.5,1.4,1.9,0x344956,0.26,3,0,0,.8,.3);
+for(var f=0;f<22;f++)box(0.46,1.36,0.02,f%2?0x526875:0x3b4f5c,1,3,0,-0.9+f*0.0857,.9,.4);
+box(0.54,0.06,1.96,0x24343e,1,3,0.72,0,.8,.4);box(0.54,0.06,1.96,0x24343e,1,3,-0.72,0,.8,.4);box(0.54,1.5,0.06,0x24343e,1,3,0,0.97,.8,.4);box(0.54,1.5,0.06,0x24343e,1,3,0,-0.97,.8,.4);
+// bomba
+var pump=new THREE.Mesh(new THREE.CylinderGeometry(0.42,0.42,0.5,28),mat(0x2c3f4b,0.65,.85,.35));pump.position.set(-3,0,0);scene.add(pump);
+box(1.0,0.14,1.0,0x1d2b34,1,-3,-0.35,0,.6,.4);
+var pr=new THREE.Mesh(new THREE.TorusGeometry(0.36,0.03,8,32),mat(0x526875,1,.85,.35));pr.rotation.x=Math.PI/2;pr.position.set(-3,0.27,0);scene.add(pr);
+var led=new THREE.Mesh(new THREE.SphereGeometry(0.045,12,8),mat(0x000000,1,0,.4,0x20C9D2));led.position.set(-3,-0.05,0.43);scene.add(led);
+var imp=new THREE.Group();imp.position.set(-3,0.3,0);
+for(var k2=0;k2<6;k2++){var bl=new THREE.Mesh(new THREE.BoxGeometry(0.34,0.06,0.05),mat(0x20C9D2,1,.2,.4));bl.position.x=0.17;var g=new THREE.Group();g.rotation.y=k2*Math.PI/3;g.add(bl);imp.add(g)}
+scene.add(imp);
+// reservorio
+var res=new THREE.Mesh(new THREE.CylinderGeometry(0.36,0.36,1.2,24),mat(0x5f8a99,0.16,.1,.1));res.position.set(0,0,1.5);scene.add(res);
+var fill=new THREE.Mesh(new THREE.CylinderGeometry(0.33,0.33,0.8,24),mat(0x20C9D2,0.6,0,.3,0x0f6f75));fill.position.set(0,-0.15,1.5);scene.add(fill);
+[0.64,-0.64].forEach(function(y){var c=new THREE.Mesh(new THREE.CylinderGeometry(0.4,0.4,0.08,24),mat(0x526875,1,.9,.3));c.position.set(0,y,1.5);scene.add(c)});
+box(0.9,0.12,0.9,0x1d2b34,1,0,-0.75,1.5,.6,.4);
+// circuito
+var segs=[];
+function add(a,b,t){var A=new THREE.Vector3(a[0],a[1],a[2]),B=new THREE.Vector3(b[0],b[1],b[2]);segs.push({A:A,B:B,len:A.distanceTo(B),t:t,dir:B.clone().sub(A).normalize(),cum:0,mesh:null})}
+add([-3,0,1.5],[-3,0,-1.5],'t');add([-3,0,-1.5],[-1,0,-1.5],'t');add([-1,0,-1.5],[1,0,-1.5],'p');
+add([1,0,-1.5],[3,0,-1.5],'t');add([3,0,-1.5],[3,0,-0.9],'t');add([3,0,-0.9],[3,0,0.9],'r');
+add([3,0,0.9],[3,0,1.5],'t');add([3,0,1.5],[-3,0,1.5],'t');
+var total=0,up=new THREE.Vector3(0,1,0);
+var cols={t:[0x1f8e98,0.34],p:[0xF29A55,0.5],r:[0x3f7f8a,0.4]};
+segs.forEach(function(s){s.cum=total;total+=s.len;
+ var m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,s.len,20),mat(cols[s.t][0],cols[s.t][1]));
+ m.position.copy(s.A).add(s.B).multiplyScalar(0.5);m.quaternion.setFromUnitVectors(up,s.dir);scene.add(m);s.mesh=m;var cm=new THREE.Mesh(new THREE.CylinderGeometry(1,1,s.len,16),new THREE.MeshStandardMaterial({color:0x20C9D2,emissive:0x20C9D2,emissiveIntensity:.4,roughness:.4,transparent:true,opacity:.38,depthWrite:false}));cm.position.copy(m.position);cm.quaternion.copy(m.quaternion);scene.add(cm);s.core=cm});
+var pseg=segs[2];pseg.mesh.visible=false;pseg.core.visible=false;
+var chs=[];[[1,1],[-1,1],[1,-1],[-1,-1]].forEach(function(o){
+ var sh=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1.4,16,1,true),mat(0xF29A55,0.45,.3,.3));sh.material.side=THREE.DoubleSide;sh.quaternion.copy(pseg.mesh.quaternion);scene.add(sh);
+ var co=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1.4,12),new THREE.MeshStandardMaterial({color:0x20C9D2,emissive:0x20C9D2,emissiveIntensity:.4,roughness:.4,transparent:true,opacity:.38,depthWrite:false}));co.quaternion.copy(sh.quaternion);scene.add(co);chs.push({sh:sh,co:co,o:o})});
+var cones=[0,1].map(function(){var c=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.3,20,1,true),mat(0xF29A55,0.3,.3,.3));c.material.side=THREE.DoubleSide;c.quaternion.copy(pseg.mesh.quaternion);scene.add(c);return c});
+var corners=[[-3,1.5],[-3,-1.5],[3,-1.5],[3,1.5]].map(function(c){var m=new THREE.Mesh(new THREE.SphereGeometry(1,16,12),mat(0x1f8e98,0.34));m.position.set(c[0],0,c[1]);scene.add(m);return m});
+var fits=[];segs.forEach(function(s){if(s.t==='t')return;[s.A,s.B].forEach(function(p){var m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,0.14,20),mat(0x526875,1,.9,.3));m.position.copy(p);m.quaternion.copy(s.mesh.quaternion);scene.add(m);fits.push(m)})});
+// manómetros
+var GB=0.8;
+function gauge(x){var gl=new THREE.Mesh(new THREE.CylinderGeometry(0.07,0.07,2.0,12),mat(0x8fa6b4,0.22));gl.position.set(x,GB+1.0,-1.5);scene.add(gl);
+ var stem=new THREE.Mesh(new THREE.CylinderGeometry(0.035,0.035,GB,8),mat(0x8fa6b4,0.4));stem.position.set(x,GB/2,-1.5);scene.add(stem);
+ var l=new THREE.Mesh(new THREE.CylinderGeometry(0.055,0.055,1,12),mat(0x20C9D2,0.95));scene.add(l);
+ var tp=[];for(var k=0;k<=50;k++){var y=GB+k*0.04,len=(k%5===0)?0.1:0.05;tp.push(x+0.09,y,-1.5,x+0.09+len,y,-1.5)}
+ var tg=new THREE.BufferGeometry();tg.setAttribute('position',new THREE.Float32BufferAttribute(tp,3));
+ scene.add(new THREE.LineSegments(tg,new THREE.LineBasicMaterial({color:0xA9BBC5,transparent:true,opacity:.8})));
+ return {l:l,x:x}}
+var g1=gauge(-2.4),g2=gauge(0);
+function setCol(g,h){h=Math.max(0.04,h);g.l.scale.y=h;g.l.position.set(g.x,GB+h/2,-1.5)}
+var refl=new THREE.Mesh(new THREE.BoxGeometry(2.8,0.012,0.012),new THREE.MeshBasicMaterial({color:0xF29A55}));refl.position.set(-1.05,GB+1.5,-1.5);scene.add(refl);
+var dhb=new THREE.Mesh(new THREE.CylinderGeometry(0.02,0.02,1,8),new THREE.MeshBasicMaterial({color:0xF29A55}));scene.add(dhb);
+// flechas de velocidad
+function mkArrow(){var m=new THREE.MeshStandardMaterial({color:0xffffff,emissive:0xffffff,emissiveIntensity:.35,roughness:.4});var g=new THREE.Group(),sh=new THREE.Mesh(new THREE.CylinderGeometry(1,1,1,12),m),hd=new THREE.Mesh(new THREE.ConeGeometry(1,1,16),m);g.add(sh);g.add(hd);scene.add(g);return {g:g,sh:sh,hd:hd,m:m}}
+var ar1=mkArrow(),ar2=mkArrow(),ar3=mkArrow(),DX=new THREE.Vector3(1,0,0),DZ=new THREE.Vector3(0,0,1);
+function setArrow(a,p,dir,v,r){var L=Math.max(0.22,1.6*v/(v+1.2)),hl=Math.min(L*0.45,r*4+0.05),sl=L-hl;a.g.position.set(p[0],p[1],p[2]);a.g.quaternion.setFromUnitVectors(up,dir);a.sh.scale.set(r,sl,r);a.sh.position.y=-L/2+sl/2;a.hd.scale.set(r*2.2,hl,r*2.2);a.hd.position.y=-L/2+sl+hl/2;a.m.color.copy(cA).lerp(cB,Math.min(v/3,1));a.m.emissive.copy(a.m.color)}
+scene.traverse(function(o){if(o.isMesh&&o.material&&!o.material.transparent&&o!==floor){o.castShadow=true;o.receiveShadow=true}});
+// partículas
+var N=480,pos=new Float32Array(N*3),colA=new Float32Array(N*3),ps=[],ox=[],oy=[];
+for(var i=0;i<N;i++){ps.push(Math.random()*total);var r=Math.sqrt(Math.random()),a=Math.random()*6.283;ox.push(r*Math.cos(a));oy.push(r*Math.sin(a))}
+var geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(pos,3));geo.setAttribute('color',new THREE.BufferAttribute(colA,3));
+var sp=document.createElement('canvas');sp.width=sp.height=64;var sx=sp.getContext('2d'),gr=sx.createRadialGradient(32,32,0,32,32,32);gr.addColorStop(0,'rgba(255,255,255,.95)');gr.addColorStop(.4,'rgba(255,255,255,.6)');gr.addColorStop(1,'rgba(255,255,255,0)');sx.fillStyle=gr;sx.fillRect(0,0,64,64);
+scene.add(new THREE.Points(geo,new THREE.PointsMaterial({size:0.11,map:new THREE.CanvasTexture(sp),vertexColors:true,sizeAttenuation:true,transparent:true,opacity:.9,blending:THREE.NormalBlending,depthWrite:false})));
+// etiquetas
+var svgNS='http://www.w3.org/2000/svg',lsv=document.createElementNS(svgNS,'svg');lsv.setAttribute('style','position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none');wrap.insertBefore(lsv,renderer.domElement.nextSibling);
+function mkLab(txt,cls,lp,ap,col){var e=document.createElement('div');e.className='lab '+cls;e.textContent=txt;wrap.appendChild(e);
+ var ln=document.createElementNS(svgNS,'line'),dt=document.createElementNS(svgNS,'circle');ln.setAttribute('stroke',col);ln.setAttribute('stroke-width','1');dt.setAttribute('r','2.5');dt.setAttribute('fill',col);lsv.appendChild(ln);lsv.appendChild(dt);
+ return {t:cls==='t',e:e,v:new THREE.Vector3(lp[0],lp[1],lp[2]),a:new THREE.Vector3(ap[0],ap[1],ap[2]),ln:ln,dt:dt}}
+var GR='rgba(169,187,197,.6)',CY='rgba(32,201,210,.85)',CO='rgba(242,154,85,.9)';
+var labs=[
+ mkLab('Bomba','t',[-3,1.05,0.4],[-3,0.3,0],GR),
+ mkLab('Placa fría + CPU','t',[0.9,0.95,-2.35],[0.7,0.4,-1.95],GR),
+ mkLab('Radiador','t',[3,-1.0,0.7],[3,-0.6,0.5],GR),
+ mkLab('Reservorio','t',[0,1.0,1.5],[0,0.7,1.5],GR),
+ mkLab('Placa de video','t',[-1.9,-0.2,0.9],[-1.5,-0.5,0.5],GR),
+ mkLab('RAM','t',[1.9,0.6,-2.4],[1.8,-0.3,-2.0],GR),
+ mkLab('Ventiladores','t',[4.0,0.9,0.6],[3.38,0.0,0.47],GR),
+ mkLab('P₁','pp c1',[-2.4,3.2,-1.5],[-2.4,2.85,-1.5],CY),
+ mkLab('P₂','pp c2',[0,3.2,-1.5],[0,2.85,-1.5],CO),
+ mkLab('','two c1',[-1.55,0.95,-1.5],[-1.55,0.3,-1.5],CY),
+ mkLab('','two c2',[0.95,1.15,-0.9],[0.5,0.62,-1.2],CO),
+ mkLab('','two c3',[3,1.35,0],[3,0.92,0],CY),
+ mkLab('','pp c2',[0.75,1.9,-1.5],[0.3,1.9,-1.5],CO)];
+labs.forEach(function(l,k){l.id=(k>=9&&k<=11)?k-9:null});
+var cA=new THREE.Color(0x20C9D2),cB=new THREE.Color(0xF29A55);
+var labP1=labs[7],labP2=labs[8],labDh=labs[12];
+var order=[labP1,labP2,labDh,labs[9],labs[10],labs[11],labs[0],labs[1],labs[2],labs[3],labs[4],labs[5],labs[6]];
+// estado físico
+var st={names:true,q:2,d:10,s:0.3,real:false,pause:false,v1:0,v2:0,v3:0,rt:.12,rp:.07,rr:.2,ang:0};
+function fmt(x,n){return x.toLocaleString('es-AR',{minimumFractionDigits:n,maximumFractionDigits:n})}
+function sci(x){if(!x)return '0';var e=Math.floor(Math.log10(x)),m=x/Math.pow(10,e),sp={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};return fmt(m,2)+'×10'+String(e).split('').map(function(c){return sp[c]}).join('')}
+function pres(p){return Math.abs(p)>=1000?fmt(p/1000,2)+' kPa':fmt(p,0)+' Pa'}
+function update(){
+ st.q=parseFloat($('q').value);st.d=parseFloat($('d').value);st.s=parseFloat($('s').value)/100;
+ $('qo').textContent=fmt(st.q,1)+' L/min';$('do').textContent=fmt(st.d,0)+' mm';$('so').textContent=fmt(st.s*100,0)+' %';
+ var Q=st.q/60000,D=st.d/1000,A=Math.PI*D*D/4;
+ var v1=Q/A,v2=v1/st.s,v3=v1/3;st.v1=v1;st.v2=v2;st.v3=v3;
+ var re=RHO*v1*D/MU,dyn1=0.5*RHO*v1*v1,dyn2=0.5*RHO*v2*v2,dyn3=0.5*RHO*v3*v3;
+ var dpB=dyn2-dyn1,loss=0,extra=0;
+ var f=re<2300?64/re:0.316/Math.pow(re,0.25);
+ if(st.real){extra=0.5*dyn2;loss=f*(LT/D)*dyn1+1.5*dyn2+5*dyn3}
+ var dp=dpB+extra;
+  $('v1').textContent=fmt(v1,2)+' m/s';$('v2').textContent=fmt(v2,2)+' m/s';$('v3').textContent=fmt(v3,2)+' m/s';
+ $('re').textContent=fmt(re,0)+(re<2300?' (laminar)':' (turbulento)');
+ $('dp').textContent=pres(dp);
+ var A2=A*st.s;
+ var lt=['<b class="a">A₁ = '+fmt(A*1e4,2)+' cm²</b>\nv₁ = '+fmt(v1,2)+' m/s','<b class="a">A₂ = '+fmt(A2*1e4,2)+' cm²</b>\nv₂ = '+fmt(v2,2)+' m/s','<b class="a">A₃ = 3·A₁ = '+fmt(3*A*1e4,2)+' cm²</b>\nv₃ = '+fmt(v3,2)+' m/s'];
+ labs.forEach(function(l){if(l.id!=null)l.e.innerHTML=lt[l.id]});
+ $('calc').innerHTML='<li>Caudal: Q = '+fmt(st.q,1)+' L/min = '+sci(Q)+' m³/s</li>'+
+ '<li>Sección del tubo: A₁ = πD²/4 = '+sci(A)+' m²</li>'+
+ '<li>Continuidad en el tubo: v₁ = Q/A₁ = '+fmt(v1,2)+' m/s</li>'+
+ '<li>Placa fría: A₂ = '+fmt(st.s*100,0)+' % de A₁ = '+sci(A2)+' m², entonces v₂ = Q/A₂ = '+fmt(v2,2)+' m/s</li>'+
+ '<li>Bernoulli: P₁ − P₂ = ½ρ(v₂² − v₁²) = ½·997·('+fmt(v2,2)+'² − '+fmt(v1,2)+'²) = '+pres(dpB)+'</li>'+
+ '<li>Columna del manómetro: Δh = ΔP/(ρg) = '+fmt(dpB/(RHO*G)*100,1)+' cm de agua</li>'+
+ (st.real?'<li>En el modo real se suma una pérdida local de contracción ≈ ½·(½ρv₂²), por eso la caída mostrada arriba es algo mayor.</li>':'');
+ var head=dp/(RHO*G);$('hc').textContent=fmt(head*100,1)+' cm de agua';
+ var hh=head*4,cl=Math.min(hh,1.5);
+ setCol(g1,1.5);setCol(g2,1.5-cl);
+ dhb.scale.y=Math.max(cl,0.001);dhb.position.set(0.3,GB+1.5-cl/2,-1.5);dhb.visible=cl>0.005;
+ labP1.e.textContent='P₁ (alta)';labP2.e.textContent='P₂ = P₁ − '+pres(dp)+' (baja)';
+ labDh.e.textContent='Δh = '+fmt(head*100,1)+' cm'+(hh>1.5?' (fuera de escala)':'');labDh.v.y=GB+1.5-cl/2;labDh.a.set(0.3,GB+1.5-cl/2,-1.5);
+ if(st.real){$('pt').textContent=pres(loss);$('pw').textContent=fmt(loss*Q,3)+' W';$('mn').textContent='Con rozamiento hay que gastar energía: la bomba entrega ΔP·Q para compensar las pérdidas, y Bernoulli por sí solo no alcanza: hay que sumarle el aporte de la bomba y restar las pérdidas.'}
+ else{$('pt').textContent='0 Pa';$('pw').textContent='0 W';$('mn').textContent='En el modelo ideal no hay viscosidad ni pérdidas, así que el fluido recorre el circuito sin necesidad de bomba. Pasá a “Con pérdidas reales” para ver la diferencia.'}
+ st.rt=0.12*st.d/10;st.rp=st.rt*Math.sqrt(st.s);st.rr=st.rt*Math.sqrt(3);
+ segs.forEach(function(s){var r=s.t==='t'?st.rt:s.t==='p'?st.rp:st.rr;s.r=r;s.v=s.t==='t'?v1:s.t==='p'?v2:v3;s.mesh.scale.set(r,1,r);s.core.scale.set(r*.78,1,r*.78);var cc=s.core.material;cc.color.copy(cA).lerp(cB,Math.min(s.v/3,1));cc.emissive.copy(cc.color)});
+ setArrow(ar1,[-1.55,st.rt+0.2,-1.5],DX,v1,st.rt*0.5);
+ setArrow(ar2,[0,0.62,-1.2],DX,v2,st.rp*0.5);
+ setArrow(ar3,[3,0.92,0],DZ,v3,st.rr*0.5);
+ var rc=st.rp/2,rb=rc*2.2;
+ chs.forEach(function(c){c.sh.position.set(0,c.o[1]*1.15*rc,-1.5+c.o[0]*1.15*rc);c.sh.scale.set(rc,1,rc);c.co.position.copy(c.sh.position);c.co.scale.set(rc*.7,1,rc*.7);var m=c.co.material;m.color.copy(cA).lerp(cB,Math.min(v2/3,1));m.emissive.copy(m.color)});
+ cones[0].geometry.dispose();cones[0].geometry=new THREE.CylinderGeometry(rb,st.rt,0.3,20,1,true);cones[0].position.set(-0.85,0,-1.5);
+ cones[1].geometry.dispose();cones[1].geometry=new THREE.CylinderGeometry(st.rt,rb,0.3,20,1,true);cones[1].position.set(0.85,0,-1.5);
+ corners.forEach(function(c){c.scale.setScalar(st.rt)});fits.forEach(function(m){m.scale.set(st.rt*1.45,1,st.rt*1.45)});
+}
+['q','d','s'].forEach(function(i){$(i).addEventListener('input',update)});
+function mode(r){st.real=r;$('mi').setAttribute('aria-pressed',!r);$('mr').setAttribute('aria-pressed',r);update()}
+$('mi').onclick=function(){mode(false)};$('mr').onclick=function(){mode(true)};
+$('nm').onclick=function(){st.names=!st.names;this.setAttribute('aria-pressed',st.names)};
+$('mp').onclick=function(){st.pause=!st.pause;$('mp').setAttribute('aria-pressed',st.pause);$('mp').textContent=st.pause?'Reanudar':'Pausar'};
+var fade=false,auto=true;
+$('vc').onclick=function(){fade=!fade;this.setAttribute('aria-pressed',fade);parts.forEach(function(o){var m=o.material;if(m.userData.o0==null)m.userData.o0=m.opacity;m.transparent=fade||m.userData.o0<1;m.opacity=fade?.08:m.userData.o0;m.depthWrite=!fade&&m.userData.o0>=1;m.needsUpdate=true;o.castShadow=!fade&&!!o.isMesh})};
+$('ar').onclick=function(){auto=!auto;this.setAttribute('aria-pressed',auto)};
+function goView(y,p){yaw=y;pitch=p;auto=false;$('ar').setAttribute('aria-pressed',false)}
+$('vf').onclick=function(){goView(0,0)};$('vs').onclick=function(){goView(0,1.45)};
+update();
+// cámara
+var el=renderer.domElement,drag=null;
+el.addEventListener('pointerdown',function(e){auto=false;$('ar').setAttribute('aria-pressed',false);drag=[e.clientX,e.clientY];el.setPointerCapture(e.pointerId)});
+el.addEventListener('pointermove',function(e){if(!drag)return;yaw-=(e.clientX-drag[0])*0.008;pitch=Math.max(0.15,Math.min(1.45,pitch+(e.clientY-drag[1])*0.008));drag=[e.clientX,e.clientY]});
+el.addEventListener('pointerup',function(){drag=null});
+el.addEventListener('wheel',function(e){e.preventDefault();dist=Math.max(6,Math.min(18,dist+e.deltaY*0.01))},{passive:false});
+wrap.addEventListener('keydown',function(e){if(e.key==='ArrowLeft')yaw-=0.08;if(e.key==='ArrowRight')yaw+=0.08;if(e.key==='ArrowUp')pitch=Math.min(1.45,pitch+0.06);if(e.key==='ArrowDown')pitch=Math.max(0.15,pitch-0.06)});
+function resize(){var w=wrap.clientWidth,h=wrap.clientHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
+if(window.ResizeObserver)new ResizeObserver(resize).observe(wrap);window.addEventListener('resize',resize);resize();
+// bucle
+var perp=new THREE.Vector3(),last=performance.now(),c0=new THREE.Color(0x20C9D2),c1=new THREE.Color(0xF29A55),tmp=new THREE.Color();
+function frame(now){
+ var dt=Math.min(0.05,(now-last)/1000);last=now;
+ if(!st.pause){
+  st.ang+=dt*st.q*5;imp.rotation.y=st.ang;
+  for(var i=0;i<N;i++){
+   var s=ps[i],sg=segs[segs.length-1];
+   for(var j=0;j<segs.length;j++){if(s<segs[j].cum+segs[j].len){sg=segs[j];break}}
+   s+=sg.v*VIS*dt;if(s>=total)s-=total;ps[i]=s;
+   sg=segs[segs.length-1];for(j=0;j<segs.length;j++){if(s<segs[j].cum+segs[j].len){sg=segs[j];break}}
+   perp.crossVectors(sg.dir,up).normalize();
+   var u=s-sg.cum,r=sg.r*0.75;
+   if(sg.t==='p'){var rc=st.rp/2,co=chs[i%4].o;
+    pos[i*3]=sg.A.x+sg.dir.x*u;
+    pos[i*3+1]=sg.A.y+co[1]*1.15*rc+oy[i]*rc*0.6;
+    pos[i*3+2]=sg.A.z+co[0]*1.15*rc+ox[i]*rc*0.6;
+   }else{
+   pos[i*3]=sg.A.x+sg.dir.x*u+perp.x*ox[i]*r;
+   pos[i*3+1]=sg.A.y+sg.dir.y*u+oy[i]*r;
+   pos[i*3+2]=sg.A.z+sg.dir.z*u+perp.z*ox[i]*r;}
+   tmp.copy(c0).lerp(c1,Math.min(sg.v/3,1));colA[i*3]=tmp.r;colA[i*3+1]=tmp.g;colA[i*3+2]=tmp.b;
+  }
+  geo.attributes.position.needsUpdate=true;geo.attributes.color.needsUpdate=true;
+ }
+ if(!st.pause){fans.forEach(function(f){f.spin.rotation.z+=dt*f.w*(0.4+st.q*0.5)})}
+ if(auto&&!drag)yaw+=dt*0.12;
+ cam.position.set(dist*Math.cos(pitch)*Math.sin(yaw),dist*Math.sin(pitch),dist*Math.cos(pitch)*Math.cos(yaw));cam.lookAt(0,pitch<0.01?cam.position.y:-0.2,0);
+ renderer.render(scene,cam);
+ var w=wrap.clientWidth,h=wrap.clientHeight;
+ var placed=[];
+ order.forEach(function(l){var p=l.v.clone().project(cam),vis=p.z<1&&(st.names||!l.t);
+  l.e.style.display=vis?'block':'none';
+  if(!vis){l.ln.style.display='none';l.dt.style.display='none';return}
+  var ew=l.e.offsetWidth,eh=l.e.offsetHeight,x0=(p.x*0.5+0.5)*w-ew/2,y0=(-p.y*0.5+0.5)*h-eh/2;
+  x0=Math.max(4,Math.min(w-ew-4,x0));y0=Math.max(4,Math.min(h-eh-4,y0));
+  for(var it=0;it<8;it++){var hit=false;for(var k=0;k<placed.length;k++){var q=placed[k];if(x0<q.x1+3&&x0+ew>q.x0-3&&y0<q.y1+3&&y0+eh>q.y0-3){y0=q.y1+4;hit=true}}if(!hit)break}
+  placed.push({x0:x0,x1:x0+ew,y0:y0,y1:y0+eh});
+  l.e.style.transform='translate('+x0+'px,'+y0+'px)';
+  var a=l.a.clone().project(cam),ax=(a.x*0.5+0.5)*w,ay=(-a.y*0.5+0.5)*h,lx=x0+ew/2,ly=y0+eh/2,far=a.z<1&&Math.hypot(ax-lx,ay-ly)>eh*0.9;
+  l.ln.style.display=l.dt.style.display=far?'block':'none';
+  if(far){l.ln.setAttribute('x1',lx);l.ln.setAttribute('y1',ly);l.ln.setAttribute('x2',ax);l.ln.setAttribute('y2',ay);l.dt.setAttribute('cx',ax);l.dt.setAttribute('cy',ay)}
+ });
+ requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
