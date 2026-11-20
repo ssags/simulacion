@@ -160,6 +160,7 @@ aside,.box{min-width:0}
         <button id="mp" aria-pressed="false">Pausar</button>
         <button id="vc" aria-pressed="false">Resaltar circuito</button>
         <button id="nm" aria-pressed="true">Nombres de piezas</button>
+        <button id="vl" aria-pressed="true">Valores en la escena</button>
         <button id="ar" aria-pressed="true">Giro automático</button>
         <button id="vf">Vista frontal</button>
         <button id="vs">Vista superior</button>
@@ -183,7 +184,7 @@ aside,.box{min-width:0}
         <dt>Caída de presión P₁ − P₂</dt><dd id="dp"></dd>
         <dt>Descenso equivalente (P₁ − P₂)/ρg</dt><dd id="hc"></dd>
       </dl>
-      <p class="note">Las dos columnas son manómetros graduados (1 división = 1 cm de agua). La línea punteada marca el nivel de P₁ y la columna de la placa baja Δh cuando la velocidad sube. Con «Vista frontal» se lee Δh sin distorsión de perspectiva.</p>
+      <p class="note">Las dos columnas son manómetros graduados (1 división = 1 cm de agua). La línea horizontal naranja marca el nivel de P₁ y la barra vertical naranja es el descenso Δh que baja la columna de la placa cuando la velocidad sube. Con «Vista frontal» se lee Δh sin distorsión de perspectiva.</p>
     </div>
     <div class="box">
       <h2>Qué agrega la realidad</h2>
@@ -270,7 +271,7 @@ function fan(r,n,x,y,z,rx,ry,w){var root=new THREE.Group(),spin=new THREE.Group(
  root.add(spin);scene.add(root);fans.push({spin:spin,w:w})}
 fan(0.4,9,-0.8,-0.49,0.25,-Math.PI/2,0,9);fan(0.4,9,0.8,-0.49,0.25,-Math.PI/2,0,-9);
 fan(0.44,9,3.38,0,-0.47,0,Math.PI/2,11);fan(0.44,9,3.38,0,0.47,0,Math.PI/2,11);
-var parts=scene.children.slice(pc0).filter(function(o){return o!==cold1&&o!==cold2&&o!==fans[2].spin.parent&&o!==fans[3].spin.parent});
+var parts=[];scene.children.slice(pc0).forEach(function(o){if(o===cold1||o===cold2||o===fans[2].spin.parent||o===fans[3].spin.parent)return;o.traverse(function(c){if(c.material)parts.push(c)})});
 var ce=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.0,0.8,1.1)),new THREE.LineBasicMaterial({color:0xF29A55}));ce.position.set(0,0,-1.5);scene.add(ce);
 // radiador con aletas
 box(0.5,1.4,1.9,0x344956,0.26,3,0,0,.8,.3);
@@ -406,6 +407,8 @@ function update(){
 function mode(r){st.real=r;$('mi').setAttribute('aria-pressed',!r);$('mr').setAttribute('aria-pressed',r);update()}
 $('mi').onclick=function(){mode(false)};$('mr').onclick=function(){mode(true)};
 $('nm').onclick=function(){st.names=!st.names;this.setAttribute('aria-pressed',st.names)};
+st.vals=true;
+$('vl').onclick=function(){st.vals=!st.vals;this.setAttribute('aria-pressed',st.vals)};
 $('mp').onclick=function(){st.pause=!st.pause;$('mp').setAttribute('aria-pressed',st.pause);$('mp').textContent=st.pause?'Reanudar':'Pausar'};
 var fade=false,auto=!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
 if(!auto)$('ar').setAttribute('aria-pressed','false');
@@ -468,7 +471,7 @@ function frame(now){
  renderer.render(scene,cam);
  var w=wrap.clientWidth,h=wrap.clientHeight;
  var placed=[];
- order.forEach(function(l){var p=l.v.clone().project(cam),vis=p.z<1&&(st.names||!l.t);
+ order.forEach(function(l){var p=l.v.clone().project(cam),vis=p.z<1&&(l.t?st.names:st.vals);
   l.e.style.display=vis?'block':'none';
   if(!vis){l.ln.style.display='none';l.dt.style.display='none';return}
   var ew=l.e.offsetWidth,eh=l.e.offsetHeight,x0=(p.x*0.5+0.5)*w-ew/2,y0=(-p.y*0.5+0.5)*h-eh/2;
