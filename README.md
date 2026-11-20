@@ -11,7 +11,7 @@ El circuito es cerrado y está dentro de un gabinete con placa madre, RAM, placa
 3. Se necesita conexión a internet la primera vez, porque carga dos recursos externos:
    - **Three.js r128** desde `cdnjs.cloudflare.com` (el motor 3D).
    - La tipografía **Instrument Sans** desde Google Fonts. Si no carga, usa la fuente del sistema.
-4. La otra alternativa es hacer click en [Ver la simulación](https://ssags.github.io/simulacion-refrigeracion/)
+4. La otra alternativa es hacer click en [Ver la simulación](https://ssags.github.io/simulacion/)
 
 ## Qué se ve en la escena
 
